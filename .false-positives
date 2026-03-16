@@ -1,0 +1,11 @@
+{
+  "false_positives": [
+    {
+      "file": "example_app.py",
+      "line_number": 6,
+      "match": "valid_username = \"admin\"",
+      "rule": "Credencial hardcoded (username)",
+      "comment": "Marcado manualmente como falso positivo"
+    }
+  ]
+}
