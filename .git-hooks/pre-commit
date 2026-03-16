@@ -1,0 +1,46 @@
+#!/bin/sh
+# ─────────────────────────────────────────────────────────────
+# pre-commit hook — Detección de secretos antes del commit
+#
+# Instalación:
+#   cp pre-commit .git/hooks/pre-commit
+#   chmod +x .git/hooks/pre-commit
+#
+# Para saltarlo puntualmente (NO recomendado):
+#   git commit --no-verify
+# ─────────────────────────────────────────────────────────────
+
+echo ""
+echo "🔍  [pre-commit] Ejecutando escáner de secretos..."
+echo "──────────────────────────────────────────────────"
+
+# Buscar el scanner.py en la raíz del repositorio
+REPO_ROOT=$(git rev-parse --show-toplevel)
+SCANNER="$REPO_ROOT/scanner.py"
+
+if [ ! -f "$SCANNER" ]; then
+    echo "⚠️  No se encontró scanner.py en $REPO_ROOT"
+    echo "    El hook no puede ejecutarse. Commit bloqueado por seguridad."
+    exit 1
+fi
+
+# Ejecutar el escáner solo sobre los ficheros en staging
+python3 "$SCANNER" --staged
+EXIT_CODE=$?
+
+if [ $EXIT_CODE -ne 0 ]; then
+    echo ""
+    echo "──────────────────────────────────────────────────"
+    echo "❌  COMMIT BLOQUEADO: Se detectaron secretos en los ficheros."
+    echo ""
+    echo "    Opciones:"
+    echo "    1) Elimina los secretos del código y vuelve a hacer 'git add'"
+    echo "    2) Añade '# IGNORE' al final de la línea si es un falso positivo inline"
+    echo "    3) Ejecuta 'python3 scanner.py --mark-fp' para registrar falsos positivos"
+    echo ""
+    exit 1
+fi
+
+echo "✅  Sin secretos detectados. Commit permitido."
+echo ""
+exit 0
