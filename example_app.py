@@ -67,4 +67,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-api_key = "clave-super-secreta-456"
